@@ -1,0 +1,9 @@
+2022.10.20 12:49:15 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at c:\Users\Dylan Green\OneDrive - West Point\Desktop\West Point\AY 23-1\Research\Dougherty Research\Locating Array Validator\.metals\lsp.trace.json or C:\Users\Dylan Green\AppData\Local\scalameta\metals\cache\lsp.trace.json
+2022.10.20 12:49:16 INFO  logging to file C:\Users\Dylan Green\OneDrive - West Point\Desktop\West Point\AY 23-1\Research\Dougherty Research\Locating Array Validator\.metals\metals.log
+2022.10.20 12:49:16 INFO  Started: Metals version 0.11.9 in workspace 'C:\Users\Dylan Green\OneDrive - West Point\Desktop\West Point\AY 23-1\Research\Dougherty Research\Locating Array Validator' for client Visual Studio Code 1.72.2.
+2022.10.20 12:49:19 INFO  time: initialize in 2.7s
+2022.10.20 12:49:22 WARN  Build server is not auto-connectable.
+2022.10.20 12:49:22 WARN  no build tool detected in workspace 'C:\Users\Dylan Green\OneDrive - West Point\Desktop\West Point\AY 23-1\Research\Dougherty Research\Locating Array Validator'. The most common cause for this problem is that the editor was opened in the wrong working directory, for example if you use sbt then the workspace directory should contain build.sbt. 
+Oct 21, 2022 11:34:59 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2022.10.21 11:36:31 INFO  shutting down Metals
