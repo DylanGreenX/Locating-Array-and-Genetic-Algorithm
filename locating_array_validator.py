@@ -1,18 +1,19 @@
 import itertools
 import math
 import random
+import copy
 
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #num of d interactions (interaction of interactions) 
 k = 4  #num of columns
-n = 5  #starting num of rows
-
+n = 8  #starting num of rows
+x = 100 #number of arrays to generate
 #Random Array Generation
 
-def generator(num_rows, num_columns, num_values): #generates a random list of arrays with specified rows, columns, num values
+def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
     array_list = []
-    for i in range(10): #1000 is an arbitrary number: Generator will return a list of 100 arrays
+    for i in range(num_arrays): #generater will return a list containing num_arrays of arrays 
         array = []
         for row_num in range(num_rows):
             row = []
@@ -51,10 +52,10 @@ def locating_fitness(input_array):
     return (count/opt)
 
 
-def main_loop(n,k,v):   #main_loop tests locating fitness on every array in the list
+def main_loop(n,k,v,x):   #main_loop tests locating fitness on every array in the list
     locating = False 
     while locating == False:
-        array_list = generator(n,k,v) #this is the starting array list produced by the generator
+        array_list = generator(n,k,v,x) #this is the starting array list produced by the generator
         for ar in array_list:
             fitness = locating_fitness(ar)
             if fitness == 1:
@@ -69,13 +70,35 @@ def to_file(array):
             file.write('\n') 
 
 
-print(main_loop(n,k,v))
+array_list = generator(n,k,v,x)
+
+def basic_genetic_algo(list):
+    locating = False
+    list_algo_scope = copy.deepcopy(list) 
+    print(list_algo_scope)
+    print("SEPERATOR ------------------------------------------------------")
+    def breeding(list): #takes in list of arrays
+        parent1 = random.choice(list) #picks random array in list
+        parent2 = random.choice(list) #picks random array in list
+        child = []
+        idx = random.randint(0,n) 
+        for elem in parent1[:idx]: 
+            child.append(elem)
+        for elem in parent2[idx:]:
+            child.append(elem)
+        if locating_fitness(child) <= (locating_fitness(parent1) or locating_fitness(parent2)):
+            pass
+        else:
+            list.append(child)
+    while locating == False:
+        breeding(list_algo_scope)
+        print(locating_fitness(list_algo_scope[-1]))
+        if locating_fitness(list_algo_scope[-1]) == 1:
+            locating = True
+            return list_algo_scope[-1]
 
 
-
-
-
-
+print(basic_genetic_algo(array_list))
 # RETIRED CODE ===========================================================================================================================================================================#
 # !!!!!!!!!!!!!!!!!!!!!!!!
 #   This determines if an array is covering, but is not really necessary for my later implementations.
