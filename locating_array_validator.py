@@ -2,6 +2,9 @@ import itertools
 import math
 import random
 import copy
+import timeit
+
+
 
 t = 2  #num of columns in interaction
 v = 2  #num of values    
@@ -70,11 +73,9 @@ def to_file(array):
             file.write('\n') 
 
 
-array_list = generator(n,k,v,x)
-
-def basic_genetic_algo(list):
+def basic_genetic_algo(n,k,v,x):
     locating = False
-    list_algo_scope = copy.deepcopy(list) 
+    list_algo_scope = generator(n,k,v,x)
     print(list_algo_scope)
     print("SEPERATOR ------------------------------------------------------")
     def breeding(list): #takes in list of arrays
@@ -91,14 +92,14 @@ def basic_genetic_algo(list):
         else:
             list.append(child)
     while locating == False:
-        breeding(list_algo_scope)
-        print(locating_fitness(list_algo_scope[-1]))
-        if locating_fitness(list_algo_scope[-1]) == 1:
+        breeding(list_algo_scope) 
+        print(locating_fitness(list_algo_scope[-1]))    #Child will be the last thing added to a list so list_algo_scope[-1]
+        if locating_fitness(list_algo_scope[-1]) == 1:  #If the optimality of the child = 1, then were done 
             locating = True
             return list_algo_scope[-1]
 
 
-print(basic_genetic_algo(array_list))
+print(basic_genetic_algo(n,k,v,x))
 # RETIRED CODE ===========================================================================================================================================================================#
 # !!!!!!!!!!!!!!!!!!!!!!!!
 #   This determines if an array is covering, but is not really necessary for my later implementations.
