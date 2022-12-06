@@ -2,16 +2,16 @@ import itertools
 import math
 import random
 import copy
-import timeit
-
+import time
+start_time = time.time()
 
 
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #num of d interactions (interaction of interactions) 
-k = 4  #num of columns
-n = 8  #starting num of rows
-x = 100 #number of arrays to generate
+k = 20 #num of columns
+n = 50 #starting num of rows
+x = 10 #number of arrays to generate
 #Random Array Generation
 
 def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
@@ -55,16 +55,20 @@ def locating_fitness(input_array):
     return (count/opt)
 
 
-def main_loop(n,k,v,x):   #main_loop tests locating fitness on every array in the list
+def add_line(n,k,v,x):                                                         #main_loop tests locating fitness on every array in the list
     locating = False 
     while locating == False:
-        array_list = generator(n,k,v,x) #this is the starting array list produced by the generator
+        print(n)
+        array_list = generator(n,k,v,x)                                        #this is the starting array list produced by the generator
+        print('regen')
         for ar in array_list:
             fitness = locating_fitness(ar)
             if fitness == 1:
                 locating = True
-                return ar 
-        n += 1          #adds a row if it makes it through the full iteration without generating a locating array
+                return ar
+        print('here')
+        n += 1                                                                 #adds a row if it makes it through the full iteration without generating a locating array
+#                                                                              #adds a row if it makes it through the full iteration without generating a locating array
 
 def to_file(array):
     with open('output.txt', 'w') as file:
@@ -76,30 +80,45 @@ def to_file(array):
 def basic_genetic_algo(n,k,v,x):
     locating = False
     list_algo_scope = generator(n,k,v,x)
-    print(list_algo_scope)
-    print("SEPERATOR ------------------------------------------------------")
-    def breeding(list): #takes in list of arrays
-        parent1 = random.choice(list) #picks random array in list
-        parent2 = random.choice(list) #picks random array in list
+    def breeding(list):                                                         #takes in list of arrays
+        parent1, parent2 = random.sample(list_algo_scope, k = 2)                #picks random array in list
         child = []
+        mutation = []
         idx = random.randint(0,n) 
         for elem in parent1[:idx]: 
-            child.append(elem)
+            child.append(elem[:])
         for elem in parent2[idx:]:
-            child.append(elem)
-        if locating_fitness(child) <= (locating_fitness(parent1) or locating_fitness(parent2)):
-            pass
-        else:
-            list.append(child)
+            child.append(elem[:])
+        
+        #handeling simple mutation#
+        mutation = [random.randint(0,v-1) for i in range(0,k)]                  #generate a random v-1 value k amount of times
+        child[random.randint(0,n-1)] = mutation
+        list.append(child)
+    
+    loop_time = time.time()
     while locating == False:
-        breeding(list_algo_scope) 
-        print(locating_fitness(list_algo_scope[-1]))    #Child will be the last thing added to a list so list_algo_scope[-1]
-        if locating_fitness(list_algo_scope[-1]) == 1:  #If the optimality of the child = 1, then were done 
-            locating = True
+        breeding(list_algo_scope)
+        fitness = locating_fitness(list_algo_scope[-1])
+        print(fitness)
+        if fitness == 1:            
             return list_algo_scope[-1]
+        print(f"We Here Bitch {time.time()-loop_time}")
+        if time.time() - loop_time > 5.0:
+            break
+    return basic_genetic_algo(n+1,k,v,x)
 
 
-print(basic_genetic_algo(n,k,v,x))
+# print(add_line(n,k,v,x))
+# print("%s Add Line Runtime" % (time.time() - start_time))
+# start_time = time.time()
+out = basic_genetic_algo(n,k,v,x)
+to_file(out)
+print("%s Runtime" % (time.time() - start_time))
+
+
+
+
+
 # RETIRED CODE ===========================================================================================================================================================================#
 # !!!!!!!!!!!!!!!!!!!!!!!!
 #   This determines if an array is covering, but is not really necessary for my later implementations.
