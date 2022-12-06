@@ -35,7 +35,7 @@ In doing so we start with a given amount of randomly generated arrays, and then 
 predetermined amount of arrays to start our genetic algorithm. With at least two arrays, the algorithm will continue to run until it generates a child with 100% 
 accuracy.
 
-x = 10 #number of arrays to generate                                       // This variable is reflected in the code
+x = #number of arrays to generate                                       // This variable is reflected in the code
 
 HOW TO USE:
 
