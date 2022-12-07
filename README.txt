@@ -19,7 +19,7 @@ by allows any set of interaction faults to be found given there are at most (d) 
 
 The array on the left covers every possible interaction, but does not allow us to locate if there are any faults. To explain further, if the outcome of each row was
 to either pass or fail, and the output of row 1 in the Non-Locating array failed, there would be no way to isolate the interaction that caused it. The Additional
-rows in the Locating array on the right provide the necessary cases to ensure all interactions are covered. Note that 
+rows in the Locating array on the right provide the necessary cases to ensure all interactions are covered. 
 
 These variables are listed below:
 
