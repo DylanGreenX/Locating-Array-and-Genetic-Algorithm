@@ -49,5 +49,7 @@ Variables can be changed by hand to test different size arrays, different amount
 and the locating array will be printed to a file called output_{t}_{k}_{v}_{d}_{n}.txt where the corresponding variables run in the file
 are reflected by the file name. (There is an example output in the repo as well).
 
+HOW TO RUN: in command line > python3 ./locating_array_validator.py 
+
 Note: Changing the d value in specific will likely make it almost impossible to observe an output efficiently. The option is there as I hope to make the algorithm
 efficient enough to change this at some point. Additionally, the lower the starting arrays and rows are, the less likely an optimal output is to be observed.
