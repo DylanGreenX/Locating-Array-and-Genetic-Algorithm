@@ -8,10 +8,10 @@ start_time = time.time()
 
 t = 2  #num of columns in interaction
 v = 2  #num of values    
-d = 1  #num of d interactions (interaction of interactions) 
-k = 20 #num of columns
-n = 50 #starting num of rows
-x = 10 #number of arrays to generate
+d = 1  #the size of the set of interactions
+k = 4  #num of columns
+n = 8  #starting num of rows
+pop_size = 10 # population size
 #Random Array Generation
 
 def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
@@ -55,11 +55,11 @@ def locating_fitness(input_array):
     return (count/opt)
 
 
-def add_line(n,k,v,x):                                                         #main_loop tests locating fitness on every array in the list
+def add_line(n,k,v,pop_size):                                                         #main_loop tests locating fitness on every array in the list
     locating = False 
     while locating == False:
         print(n)
-        array_list = generator(n,k,v,x)                                        #this is the starting array list produced by the generator
+        array_list = generator(n,k,v,pop_size)                                        #this is the starting array list produced by the generator
         print('regen')
         for ar in array_list:
             fitness = locating_fitness(ar)
@@ -71,15 +71,15 @@ def add_line(n,k,v,x):                                                         #
 #                                                                              #adds a row if it makes it through the full iteration without generating a locating array
 
 def to_file(array):
-    with open('output.txt', 'w') as file:
+    with open(f'output_{t}_{k}_{v}_{d}_{n}.txt', 'w') as file:
         for row in array:
             file.write(' '.join([str(item) for item in row]))
             file.write('\n') 
 
 
-def basic_genetic_algo(n,k,v,x):
+def basic_genetic_algo(n,k,v,pop_size):
     locating = False
-    list_algo_scope = generator(n,k,v,x)
+    list_algo_scope = generator(n,k,v,pop_size)
     def breeding(list):                                                         #takes in list of arrays
         parent1, parent2 = random.sample(list_algo_scope, k = 2)                #picks random array in list
         child = []
@@ -99,24 +99,22 @@ def basic_genetic_algo(n,k,v,x):
     while locating == False:
         breeding(list_algo_scope)
         fitness = locating_fitness(list_algo_scope[-1])
-        print(fitness)
+
         if fitness == 1:            
             return list_algo_scope[-1]
-        print(f"We Here Bitch {time.time()-loop_time}")
         if time.time() - loop_time > 5.0:
             break
-    return basic_genetic_algo(n+1,k,v,x)
+    if time.time() - start_time > 60:
+        print("Generation Limit: 100% coverage not found in 60 seconds")
+        quit()
+    return basic_genetic_algo(n+1,k,v,pop_size)
 
 
-# print(add_line(n,k,v,x))
-# print("%s Add Line Runtime" % (time.time() - start_time))
-# start_time = time.time()
-out = basic_genetic_algo(n,k,v,x)
+
+start_time = time.time()
+out = basic_genetic_algo(n,k,v,pop_size)
 to_file(out)
-print("%s Runtime" % (time.time() - start_time))
-
-
-
+print(f"%s Runtime: output_{t}_{k}_{v}_{d}_{n}.txt Generated" % (time.time() - start_time))
 
 
 # RETIRED CODE ===========================================================================================================================================================================#
