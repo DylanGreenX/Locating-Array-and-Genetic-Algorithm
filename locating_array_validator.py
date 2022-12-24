@@ -1,9 +1,9 @@
 import itertools
 import math
 import random
-import copy
 import time
 import os
+from threading import Thread
 start_time = time.time()
 
 
@@ -11,7 +11,7 @@ t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
 k = 10  #num of columns
-n = 6  #starting num of rows
+n = 16  #starting num of rows
 pop_size = 10 # population size
 #Random Array Generation
 
@@ -20,7 +20,16 @@ pop_size = 10 # population size
 if os.path.exists(os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"):
     path = os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"
 else:
-    path = os.mkdir(os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}")
+    os.mkdir(os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}")
+    path = os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"
+
+
+
+
+set_of_interactions = set(itertools.product(itertools.combinations(range(k),t), itertools.product(range(v),repeat=t))) #generates set of interactions at t strength
+dset = set(itertools.combinations(set_of_interactions, d)) #generates interactions of interacts of d strength
+
+
 
 def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
     array_list = []
@@ -33,11 +42,6 @@ def generator(num_rows, num_columns, num_values, num_arrays): #generates a rando
             array.append(row)
         array_list.append(array)
     return array_list
-
-
-set_of_interactions = set(itertools.product(itertools.combinations(range(k),t), itertools.product(range(v),repeat=t))) #generates set of interactions at t strength
-dset = set(itertools.combinations(set_of_interactions, d)) #generates interactions of interacts of d strength
-
 
 def set_iteration(input_array, dset):                                       # (((1, 3), (0, 1)),) {2} Outputs will look like this
     subset = set()                                                          # (1,3) < refers to the columns here
@@ -78,10 +82,11 @@ def add_line(n,k,v,pop_size):                                                   
         n += 1                                                                 #adds a row if it makes it through the full iteration without generating a locating array                                                                            #adds a row if it makes it through the full iteration without generating a locating array
 
 def to_file(num,array):
-    full_path = os.path.join(path, f'[{num+1}]_output_{t}_{k}_{v}_{d}_{n}.txt')
+    full_path = os.path.join(path, f'[{num}]_output_{t}_{k}_{v}_{d}_{n}.txt')
     with open(full_path, 'w') as file:
         for row in array:
             file.write(' '.join([str(item) for item in row])) 
+
             file.write('\n')
 def mutations(val, child):
     mutation = []   
@@ -147,19 +152,30 @@ def basic_genetic_algo(n,k,v,pop_size):
             return list_algo_scope[-1]
         if time.time() - loop_time > 5.0:
             break
-    if time.time() - start_time > 60:
-        print("Generation Limit: 100% coverage not found in 60 seconds")
+    if time.time() - start_time > 120:
+        print("Generation Limit: 100% coverage not found in 120 seconds")
         quit()
     return basic_genetic_algo(n+1,k,v,pop_size)
 
 
+def thread_driver(t_id):
+    start_num = (t_id)*25       
+    for i in range(25):
+        start_time = time.time()
+        out = basic_genetic_algo(n,k,v,pop_size)
+        to_file(start_num+(i+1),out)
+        print(f"%s Runtime: [{t_id*(i+1)}]_output_{t}_{k}_{v}_{d}_{n}.txt Generated" % (time.time() - start_time))
 
-for i in range(1000):
-    start_time = time.time()
-    out = basic_genetic_algo(n,k,v,pop_size)
-    to_file(i,out)
-    print(f"%s Runtime: [{i+1}]_output_{t}_{k}_{v}_{d}_{n}.txt Generated" % (time.time() - start_time))
 
+
+threads = []
+for t_id in range(8):
+    thread = Thread(target=thread_driver, args=(t_id,))
+    thread.start()
+    threads.append(t)
+
+for thread in threads:
+    thread.join()
 
 # RETIRED CODE ===========================================================================================================================================================================#
 # !!!!!!!!!!!!!!!!!!!!!!!!
