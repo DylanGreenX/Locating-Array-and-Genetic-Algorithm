@@ -10,10 +10,17 @@ start_time = time.time()
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
-k = 4  #num of columns
-n = 8  #starting num of rows
+k = 10  #num of columns
+n = 6  #starting num of rows
 pop_size = 10 # population size
 #Random Array Generation
+
+#directory handeling
+
+if os.path.exists(os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"):
+    path = os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"
+else:
+    path = os.mkdir(os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}")
 
 def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
     array_list = []
@@ -70,12 +77,12 @@ def add_line(n,k,v,pop_size):                                                   
         print('here')
         n += 1                                                                 #adds a row if it makes it through the full iteration without generating a locating array                                                                            #adds a row if it makes it through the full iteration without generating a locating array
 
-def to_file(array):
-    with open(f'output_{t}_{k}_{v}_{d}_{n}.txt', 'w') as file:
+def to_file(num,array):
+    full_path = os.path.join(path, f'[{num+1}]_output_{t}_{k}_{v}_{d}_{n}.txt')
+    with open(full_path, 'w') as file:
         for row in array:
-            file.write(' '.join([str(item) for item in row]))
-            file.write('\n') 
-
+            file.write(' '.join([str(item) for item in row])) 
+            file.write('\n')
 def mutations(val, child):
     mutation = []   
     temp_child = child[:]                                                       #creating a copy to avoid locality issues
@@ -120,7 +127,7 @@ def crossover(parent1, parent2, val):               #we need crossover to take i
             child.append(elem[:])
         for elem in parent2[idx1:idx2]:
             child.append(elem[:])
-        for elem in parent2[idx2:]:
+        for elem in parent1[idx2:]:
             child.append(elem[:])      
     return child
 
@@ -147,10 +154,11 @@ def basic_genetic_algo(n,k,v,pop_size):
 
 
 
-start_time = time.time()
-out = basic_genetic_algo(n,k,v,pop_size)
-to_file(out)
-print(f"%s Runtime: output_{t}_{k}_{v}_{d}_{n}.txt Generated" % (time.time() - start_time))
+for i in range(1000):
+    start_time = time.time()
+    out = basic_genetic_algo(n,k,v,pop_size)
+    to_file(i,out)
+    print(f"%s Runtime: [{i+1}]_output_{t}_{k}_{v}_{d}_{n}.txt Generated" % (time.time() - start_time))
 
 
 # RETIRED CODE ===========================================================================================================================================================================#
