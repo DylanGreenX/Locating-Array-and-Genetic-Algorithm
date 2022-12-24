@@ -10,8 +10,8 @@ start_time = time.time()
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
-k = 10  #num of columns
-n = 16  #starting num of rows
+k = 12  #num of columns
+n = 20  #starting num of rows
 pop_size = 10 # population size
 #Random Array Generation
 
@@ -152,8 +152,8 @@ def basic_genetic_algo(n,k,v,pop_size):
             return list_algo_scope[-1]
         if time.time() - loop_time > 5.0:
             break
-    if time.time() - start_time > 120:
-        print("Generation Limit: 100% coverage not found in 120 seconds")
+    if time.time() - start_time > 300:
+        print("Generation Limit: 100% coverage not found in 300 seconds")
         quit()
     return basic_genetic_algo(n+1,k,v,pop_size)
 
