@@ -18,4 +18,4 @@ print("Mode: ", statistics.mode(data))
 print("Min: ", min(data))
 
 #Finding Max
-print("Min: ", max(data))
+print("Max: ", max(data))
