@@ -4,32 +4,26 @@ import random
 import time
 import os
 from threading import Thread
+
 start_time = time.time()
-
-
 t = 2  #num of columns in interaction
-v = 2  #num of values    
+v = 3  #num of values    
 d = 1  #the size of the set of interactions
-k = 12  #num of columns
-n = 20  #starting num of rows
+k = 4  #num of columns
+n = 6  #starting num of rows
 pop_size = 10 # population size
 #Random Array Generation
 
 #directory handeling
 
-if os.path.exists(os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"):
-    path = os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"
+if os.path.exists(os.getcwd()+f"/{k}_{n}"):
+    path = os.getcwd()+f"/{k}_{n}"
 else:
-    os.mkdir(os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}")
-    path = os.getcwd()+f"/{t}_{k}_{v}_{d}_{n}"
-
-
-
+    os.mkdir(os.getcwd()+f"/{k}_{n}")
+    path = os.getcwd()+f"/{k}_{n}"
 
 set_of_interactions = set(itertools.product(itertools.combinations(range(k),t), itertools.product(range(v),repeat=t))) #generates set of interactions at t strength
 dset = set(itertools.combinations(set_of_interactions, d)) #generates interactions of interacts of d strength
-
-
 
 def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
     array_list = []
@@ -66,27 +60,11 @@ def locating_fitness(input_array):
     opt = math.comb(cov_count, 2)
     return (count/opt)
 
-
-def add_line(n,k,v,pop_size):                                                         #main_loop tests locating fitness on every array in the list
-    locating = False 
-    while locating == False:
-        print(n)
-        array_list = generator(n,k,v,pop_size)                                        #this is the starting array list produced by the generator
-        print('regen')
-        for ar in array_list:
-            fitness = locating_fitness(ar)
-            if fitness == 1:
-                locating = True
-                return ar
-        print('here')
-        n += 1                                                                 #adds a row if it makes it through the full iteration without generating a locating array                                                                            #adds a row if it makes it through the full iteration without generating a locating array
-
 def to_file(num,array):
-    full_path = os.path.join(path, f'[{num}]_output_{t}_{k}_{v}_{d}_{n}.txt')
+    full_path = os.path.join(path, f'[{num}]_{k}_{n}.txt')
     with open(full_path, 'w') as file:
         for row in array:
             file.write(' '.join([str(item) for item in row])) 
-
             file.write('\n')
 def mutations(val, child):
     mutation = []   
@@ -108,8 +86,8 @@ def mutations(val, child):
         mutated_child = temp_child
     if val == 3:
         rand_val = random.randint(0,v-1)
-        column_num = random.randint(0,k-1)     #picks random column in number of columns generated
-        row_num = random.randint(0,n-1)     #picks random int in number of rows generated
+        column_num = random.randint(0,k-1)      #picks random column in number of columns generated
+        row_num = random.randint(0,n-1)         #picks random int in number of rows generated
         print(f"i will modify {row_num},{column_num}")
         temp_child[row_num][column_num] = rand_val
         mutated_child = temp_child
@@ -140,7 +118,7 @@ def basic_genetic_algo(n,k,v,pop_size):
     locating = False
     list_algo_scope = generator(n,k,v,pop_size)
     def breeding(list):                                                         #takes in list of arrays
-        mut_num = random.randint(1,3)                                        #determining what number mutation to use
+        mut_num = random.randint(1,3)                                           #determining what number mutation to use
         parent1, parent2 = random.sample(list_algo_scope, k = 2)                #picks random array in list
         child = mutations(mut_num,crossover(parent1,parent2,random.randint(1,2)))
         list.append(child)
@@ -152,30 +130,18 @@ def basic_genetic_algo(n,k,v,pop_size):
             return list_algo_scope[-1]
         if time.time() - loop_time > 5.0:
             break
-    if time.time() - start_time > 300:
-        print("Generation Limit: 100% coverage not found in 300 seconds")
-        quit()
+        if time.time() - start_time > 300:
+            print("Generation Limit: 100% coverage not found in 300 seconds")
+            quit()
     return basic_genetic_algo(n+1,k,v,pop_size)
 
 
-def thread_driver(t_id):
-    start_num = (t_id)*25       
-    for i in range(25):
-        start_time = time.time()
-        out = basic_genetic_algo(n,k,v,pop_size)
-        to_file(start_num+(i+1),out)
-        print(f"%s Runtime: [{t_id*(i+1)}]_output_{t}_{k}_{v}_{d}_{n}.txt Generated" % (time.time() - start_time))
+for i in range(25):
+    start_time = time.time()
+    out = basic_genetic_algo(n,k,v,pop_size)
+    to_file((i+1),out)
+    print(f"%s Runtime: [{(i+1)}]_output_{k}_{n}.txt Generated" % (time.time() - start_time))
 
-
-
-threads = []
-for t_id in range(8):
-    thread = Thread(target=thread_driver, args=(t_id,))
-    thread.start()
-    threads.append(t)
-
-for thread in threads:
-    thread.join()
 
 # RETIRED CODE ===========================================================================================================================================================================#
 # !!!!!!!!!!!!!!!!!!!!!!!!
@@ -200,3 +166,18 @@ for thread in threads:
 
 
 #k = number of columns; v = number of values; t = strength(how many columns are being compared) d = interaction between interactions
+
+
+# def add_line(n,k,v,pop_size):                                                         #main_loop tests locating fitness on every array in the list
+#     locating = False 
+#     while locating == False:
+#         print(n)
+#         array_list = generator(n,k,v,pop_size)                                        #this is the starting array list produced by the generator
+#         print('regen')
+#         for ar in array_list:
+#             fitness = locating_fitness(ar)
+#             if fitness == 1:
+#                 locating = True
+#                 return ar
+#         print('here')
+#         n += 1                                                                      #adds a row if it makes it through the full iteration without generating a locating array                                                                            #adds a row if it makes it through the full iteration without generating a locating array
