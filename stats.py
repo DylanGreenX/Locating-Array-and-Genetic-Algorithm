@@ -8,14 +8,13 @@ for filename in os.listdir(os.getcwd()+f"/{name}"):
       data.append(len(f.readlines()))
 
 
-# Finding Mean
-print("\nMean: ", statistics.mean(data))
 # Finding Median
-print("Median: ", statistics.median(data))
+print("\nMedian: ", statistics.median(data))
 # Finding Mode
 print("Mode: ", statistics.mode(data))
 #Finding Min
-print("Min: ", min(data))
-
+print("\nMin: ", min(data))
+# Finding Mean
+print("Mean: ", statistics.mean(data))
 #Finding Max
 print("Max: ", max(data))
