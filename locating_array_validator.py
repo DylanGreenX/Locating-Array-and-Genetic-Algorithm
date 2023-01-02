@@ -7,11 +7,11 @@ from threading import Thread
 
 start_time = time.time()
 t = 2  #num of columns in interaction
-v = 3  #num of values    
+v = 2  #num of values    
 d = 1  #the size of the set of interactions
 k = 4  #num of columns
-n = 6  #starting num of rows
-pop_size = 10 # population size
+n = 7  #starting num of rows
+pop_size = 100 # population size
 #Random Array Generation
 
 #directory handeling
@@ -60,8 +60,8 @@ def locating_fitness(input_array):
     opt = math.comb(cov_count, 2)
     return (count/opt)
 
-def to_file(num,array):
-    full_path = os.path.join(path, f'[{num}]_{k}_{n}.txt')
+def to_file(num,array,count):
+    full_path = os.path.join(path, f'[{num}]_{k}_{n}_{count}.txt')
     with open(full_path, 'w') as file:
         for row in array:
             file.write(' '.join([str(item) for item in row])) 
@@ -69,17 +69,17 @@ def to_file(num,array):
 def mutations(val, child):
     mutation = []   
     temp_child = child[:]                                                       #creating a copy to avoid locality issues
-    for i in temp_child: print(f"{i}")
-    print("\n")
+    # for i in temp_child: print(f"{i}")
+    # print("\n")
     if val == 1:                                                                #modify a row
         row_num = random.randint(0,n-1)
-        print(f"i will modify row {row_num}")
+        # print(f"i will modify row {row_num}")
         mutation = [random.randint(0,v-1) for i in range(0,k)]                  #generate a random v-1 value k amount of times
         temp_child[row_num] = mutation
         mutated_child = temp_child
     if val == 2:
         column_num = random.randint(0,k-1)
-        print(f"i will modify col {column_num}")
+        # print(f"i will modify col {column_num}")
         mutator = [random.randint(0,v-1) for i in range(0,n)]
         for num in range(len(mutator)):
             temp_child[num][column_num] = mutator[num]                        #modifies the value at {column_num} in each part of the 2d list 
@@ -88,12 +88,12 @@ def mutations(val, child):
         rand_val = random.randint(0,v-1)
         column_num = random.randint(0,k-1)      #picks random column in number of columns generated
         row_num = random.randint(0,n-1)         #picks random int in number of rows generated
-        print(f"i will modify {row_num},{column_num}")
+        # print(f"i will modify {row_num},{column_num}")
         temp_child[row_num][column_num] = rand_val
         mutated_child = temp_child
-    print("----------------------\n")
-    for i in mutated_child: print(f"{i}") 
-    print("\n")
+    # print("----------------------\n")
+    # for i in mutated_child: print(f"{i}") 
+    # print("\n")
     return mutated_child
 
 def crossover(parent1, parent2, val):               #we need crossover to take in two lists and a val (0,1) to determine if 1 or 2 point crossover
@@ -114,7 +114,9 @@ def crossover(parent1, parent2, val):               #we need crossover to take i
             child.append(elem[:])      
     return child
 
-def basic_genetic_algo(n,k,v,pop_size):
+def basic_genetic_algo(n,k,v,pop_size,gen_count=0):
+    print(n,gen_count)
+    temp_count = 0
     locating = False
     list_algo_scope = generator(n,k,v,pop_size)
     def breeding(list):                                                         #takes in list of arrays
@@ -122,25 +124,27 @@ def basic_genetic_algo(n,k,v,pop_size):
         parent1, parent2 = random.sample(list_algo_scope, k = 2)                #picks random array in list
         child = mutations(mut_num,crossover(parent1,parent2,random.randint(1,2)))
         list.append(child)
+        return 1
     loop_time = time.time()
     while locating == False:
-        breeding(list_algo_scope)
+        temp_count += breeding(list_algo_scope)
         fitness = locating_fitness(list_algo_scope[-1])
         if fitness == 1:            
-            return list_algo_scope[-1]
+            return list_algo_scope[-1], gen_count
         if time.time() - loop_time > 5.0:
             break
         if time.time() - start_time > 300:
             print("Generation Limit: 100% coverage not found in 300 seconds")
             quit()
-    return basic_genetic_algo(n+1,k,v,pop_size)
+    array, gen_count = basic_genetic_algo(n+1,k,v,pop_size,temp_count)
+    return array, gen_count
 
 
-for i in range(25):
+for i in range(1):
     start_time = time.time()
-    out = basic_genetic_algo(n,k,v,pop_size)
-    to_file((i+1),out)
-    print(f"%s Runtime: [{(i+1)}]_output_{k}_{n}.txt Generated" % (time.time() - start_time))
+    out, gen_count = basic_genetic_algo(n,k,v,pop_size)
+    to_file((i+1),out,gen_count)
+    print(f"%s Runtime: [{(i+1)}]_output_{k}_{n}_{gen_count}.txt Generated" % (time.time() - start_time))
 
 
 # RETIRED CODE ===========================================================================================================================================================================#
