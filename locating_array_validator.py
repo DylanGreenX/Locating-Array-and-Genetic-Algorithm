@@ -3,18 +3,28 @@ import math
 import random
 import time
 import os
+import operator
 from threading import Thread
 
 start_time = time.time()
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
-k = 4  #num of columns
-n = 7  #starting num of rows
-pop_size = 100 # population size
+k = 10  #num of columns
+n = 15 #starting num of rows
+pop_size = 200 # population size
 #Random Array Generation
 
 #directory handeling
+
+
+class individual_array:
+    def __init__(self, array, fitness):
+        self.array = array
+        self.fitness = fitness
+
+test = individual_array([[0,1],[1,0]],1)
+
 
 if os.path.exists(os.getcwd()+f"/{k}_{n}"):
     path = os.getcwd()+f"/{k}_{n}"
@@ -25,17 +35,6 @@ else:
 set_of_interactions = set(itertools.product(itertools.combinations(range(k),t), itertools.product(range(v),repeat=t))) #generates set of interactions at t strength
 dset = set(itertools.combinations(set_of_interactions, d)) #generates interactions of interacts of d strength
 
-def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
-    array_list = []
-    for i in range(num_arrays): #generater will return a list containing num_arrays of arrays 
-        array = []
-        for row_num in range(num_rows):
-            row = []
-            for position in range(num_columns):
-                row.append(random.randint(0,num_values-1))  #this is num_values - 1 b/c we have to account for zero Ie. (0,1) v = 2, but we only want 0s and 1s
-            array.append(row)
-        array_list.append(array)
-    return array_list
 
 def set_iteration(input_array, dset):                                       # (((1, 3), (0, 1)),) {2} Outputs will look like this
     subset = set()                                                          # (1,3) < refers to the columns here
@@ -53,12 +52,25 @@ def locating_fitness(input_array):
         s1 = set_iteration(input_array, i1)                             #if two dsets are occuring in any distinct row, then the array is not locating
         s2 = set_iteration(input_array, i2)
         if s1 != s2:
-            count += 1
+            if len(s1) != 0 and len(s2) != 0:                           #assumes d is equal to 1
+                count += 1
 
     #--- Optimality ----#
     cov_count = (math.comb(k,t) * (v**t))
     opt = math.comb(cov_count, 2)
     return (count/opt)
+
+def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
+    locating_obj_list = []
+    for i in range(num_arrays): #generater will return a list containing num_arrays of arrays 
+        array = []
+        for row_num in range(num_rows):
+            row = []
+            for position in range(num_columns):
+                row.append(random.randint(0,num_values-1))  #this is num_values - 1 b/c we have to account for zero Ie. (0,1) v = 2, but we only want 0s and 1s
+            array.append(row)
+        locating_obj_list.append(individual_array(array,locating_fitness(array)))
+    return locating_obj_list
 
 def to_file(num,array,count):
     full_path = os.path.join(path, f'[{num}]_{k}_{n}_{count}.txt')
@@ -68,7 +80,7 @@ def to_file(num,array,count):
             file.write('\n')
 def mutations(val, child):
     mutation = []   
-    temp_child = child[:]                                                       #creating a copy to avoid locality issues
+    temp_child = child.array[:]                                                       #creating a copy to avoid locality issues
     # for i in temp_child: print(f"{i}")
     # print("\n")
     if val == 1:                                                                #modify a row
@@ -94,56 +106,90 @@ def mutations(val, child):
     # print("----------------------\n")
     # for i in mutated_child: print(f"{i}") 
     # print("\n")
-    return mutated_child
+    fit = locating_fitness(mutated_child)
+    obj = individual_array(mutated_child,fit)
+
+    # print('-----------------------')
+    # print(fit)
+    # print('-----------------------')
+    return obj
 
 def crossover(parent1, parent2, val):               #we need crossover to take in two lists and a val (0,1) to determine if 1 or 2 point crossover
     child = []
     if val == 1:                                    #one point crossover
-        idx = random.randint(0,n) 
-        for elem in parent1[:idx]: 
+        idx = random.randint(1,n-1) 
+        for elem in parent1.array[:idx]: 
             child.append(elem[:])
-        for elem in parent2[idx:]:
+        for elem in parent2.array[idx:]:
             child.append(elem[:])
     if val == 2:                                   #two point crossover
-        idx1,idx2 = sorted(random.sample(range(0,n),2))             #ensure index 2 is always bigger than index 1
-        for elem in parent1[:idx1]: 
+        idx1,idx2 = sorted(random.sample(range(1,n),2))             #ensure index 2 is always bigger than index 1
+        for elem in parent1.array[:idx1]:
             child.append(elem[:])
-        for elem in parent2[idx1:idx2]:
+        for elem in parent2.array[idx1:idx2]:
             child.append(elem[:])
-        for elem in parent1[idx2:]:
+        for elem in parent1.array[idx2:]:
             child.append(elem[:])      
-    return child
+    # print(parent1.fitness,parent2.fitness)
+    fit = locating_fitness(child)
+    obj = individual_array(child,fit)
+    # print(fit)
+    return obj
 
-def basic_genetic_algo(n,k,v,pop_size,gen_count=0):
-    print(n,gen_count)
-    temp_count = 0
-    locating = False
+
+
+def basic_genetic_algo(n,k,v,pop_size,gen_count = 0):                                                                          
     list_algo_scope = generator(n,k,v,pop_size)
-    def breeding(list):                                                         #takes in list of arrays
-        mut_num = random.randint(1,3)                                           #determining what number mutation to use
-        parent1, parent2 = random.sample(list_algo_scope, k = 2)                #picks random array in list
-        child = mutations(mut_num,crossover(parent1,parent2,random.randint(1,2)))
-        list.append(child)
-        return 1
-    loop_time = time.time()
-    while locating == False:
-        temp_count += breeding(list_algo_scope)
-        fitness = locating_fitness(list_algo_scope[-1])
-        if fitness == 1:            
-            return list_algo_scope[-1], gen_count
-        if time.time() - loop_time > 5.0:
-            break
-        if time.time() - start_time > 300:
-            print("Generation Limit: 100% coverage not found in 300 seconds")
-            quit()
-    array, gen_count = basic_genetic_algo(n+1,k,v,pop_size,temp_count)
-    return array, gen_count
+    temp_count = 0
+    for i in range(1,101):   
+        temp_count += 1
+        temp_list = []
+        for p1 , p2 in itertools.combinations(list_algo_scope, 2):
+            cross_percent = random.randint(1,10)
+            mut_percent = random.randint(1,10)
+            if cross_percent == 1 and len(temp_list) < 100:                             #10% chance of crossover occuring and only want to go until 100 children have been produced
+                child = crossover(p1, p2, random.randint(1,1))
+                if child.fitness == 1:
+                    return child, temp_count
+                if mut_percent > 3:
+                    temp_list.append(child)
+                else:                                                                   #30% chance of mutation occuring
+                    mutated_child = mutations(random.randint(1,2), child)
+                    if mutated_child.fitness == 1:
+                        return mutated_child, temp_count
+                    temp_list.append(mutated_child)
+        comb_list =  list_algo_scope + temp_list
+        comb_list = sorted(comb_list, key = operator.attrgetter('fitness'))
+        comb_list.reverse()
+        list_algo_scope = comb_list[0:pop_size]                                         #picks the top 100   
+    array, gen_count = basic_genetic_algo(n+1,k,v,pop_size,gen_count)                   #this is just a means to save this value
+    return array, gen_count                                     
 
 
-for i in range(1):
+locating_array, count = basic_genetic_algo(n,k,v,pop_size)
+
+
+    # array, gen_count = basic_genetic_algo(n+1,k,v,pop_size,temp_count)
+    # return array, gen_count
+
+
+# obj_list = generator(n,k,v, 5)
+# print(obj_list[0].array,obj_list[0].fitness)
+# print(obj_list[1].array,obj_list[1].fitness)
+# print('-------------------------------')
+# child = crossover(obj_list[0],obj_list[1],1)
+# print(child.array,child.fitness)
+# print('========================')
+# mutated_child = mutations(1,child)
+# print(mutated_child.array, mutated_child.fitness)
+
+
+
+
+for i in range(5):
     start_time = time.time()
     out, gen_count = basic_genetic_algo(n,k,v,pop_size)
-    to_file((i+1),out,gen_count)
+    to_file((i+1),out.array,gen_count)
     print(f"%s Runtime: [{(i+1)}]_output_{k}_{n}_{gen_count}.txt Generated" % (time.time() - start_time))
 
 
