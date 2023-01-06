@@ -4,14 +4,14 @@ import random
 import time
 import os
 import operator
-from threading import Thread
+
 
 start_time = time.time()
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
-k = 10  #num of columns
-n = 15 #starting num of rows
+k = 4  #num of columns
+n = 9 #starting num of rows
 pop_size = 200 # population size
 #Random Array Generation
 
@@ -80,7 +80,7 @@ def to_file(num,array,count):
             file.write('\n')
 def mutations(val, child):
     mutation = []   
-    temp_child = child.array[:]                                                       #creating a copy to avoid locality issues
+    temp_child = child[:]                                                       #creating a copy to avoid locality issues
     # for i in temp_child: print(f"{i}")
     # print("\n")
     if val == 1:                                                                #modify a row
@@ -106,13 +106,10 @@ def mutations(val, child):
     # print("----------------------\n")
     # for i in mutated_child: print(f"{i}") 
     # print("\n")
-    fit = locating_fitness(mutated_child)
-    obj = individual_array(mutated_child,fit)
-
     # print('-----------------------')
     # print(fit)
     # print('-----------------------')
-    return obj
+    return mutated_child
 
 def crossover(parent1, parent2, val):               #we need crossover to take in two lists and a val (0,1) to determine if 1 or 2 point crossover
     child = []
@@ -123,7 +120,7 @@ def crossover(parent1, parent2, val):               #we need crossover to take i
         for elem in parent2.array[idx:]:
             child.append(elem[:])
     if val == 2:                                   #two point crossover
-        idx1,idx2 = sorted(random.sample(range(1,n),2))             #ensure index 2 is always bigger than index 1
+        idx1,idx2 = sorted(random.sample(range(1,n-1),2))             #ensure index 2 is always bigger than index 1
         for elem in parent1.array[:idx1]:
             child.append(elem[:])
         for elem in parent2.array[idx1:idx2]:
@@ -131,33 +128,37 @@ def crossover(parent1, parent2, val):               #we need crossover to take i
         for elem in parent1.array[idx2:]:
             child.append(elem[:])      
     # print(parent1.fitness,parent2.fitness)
-    fit = locating_fitness(child)
-    obj = individual_array(child,fit)
     # print(fit)
-    return obj
-
+    return child
 
 
 def basic_genetic_algo(n,k,v,pop_size,gen_count = 0):                                                                          
     list_algo_scope = generator(n,k,v,pop_size)
     temp_count = 0
-    for i in range(1,101):   
+    for i in range(1,51):                                                              #50 generations   
         temp_count += 1
         temp_list = []
         for p1 , p2 in itertools.combinations(list_algo_scope, 2):
             cross_percent = random.randint(1,10)
             mut_percent = random.randint(1,10)
-            if cross_percent == 1 and len(temp_list) < 100:                             #10% chance of crossover occuring and only want to go until 100 children have been produced
-                child = crossover(p1, p2, random.randint(1,1))
-                if child.fitness == 1:
-                    return child, temp_count
-                if mut_percent > 3:
-                    temp_list.append(child)
-                else:                                                                   #30% chance of mutation occuring
-                    mutated_child = mutations(random.randint(1,2), child)
-                    if mutated_child.fitness == 1:
-                        return mutated_child, temp_count
-                    temp_list.append(mutated_child)
+            if len(temp_list) < 100:
+                if cross_percent == 1 and mut_percent <= 3:                             #10% chance of crossover occuring and only want to go until 100 children have been produced
+                    child = crossover(p1, p2, random.randint(1,2))
+                    mutated_child = mutations(random.randint(1,3), child)
+                    fitness = locating_fitness(mutated_child)
+                    obj = individual_array(mutated_child,fitness)
+                    if fitness == 1:
+                        return obj, temp_count
+                    else:
+                        temp_list.append(obj)
+                elif cross_percent == 1 and mut_percent > 3:
+                    child = crossover(p1, p2, random.randint(1,2))
+                    fitness = locating_fitness(child)
+                    obj = individual_array(child,fitness)
+                    if fitness == 1:
+                        return obj, temp_count
+                    else:
+                        temp_list.append(obj)
         comb_list =  list_algo_scope + temp_list
         comb_list = sorted(comb_list, key = operator.attrgetter('fitness'))
         comb_list.reverse()
