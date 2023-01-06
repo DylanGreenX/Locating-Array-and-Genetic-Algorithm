@@ -4,15 +4,16 @@ import random
 import time
 import os
 import operator
-
+import multiprocessing
 
 start_time = time.time()
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
 k = 4  #num of columns
-n = 9 #starting num of rows
+n = 6 #starting num of rows
 pop_size = 200 # population size
+
 #Random Array Generation
 
 #directory handeling
@@ -81,17 +82,13 @@ def to_file(num,array,count):
 def mutations(val, child):
     mutation = []   
     temp_child = child[:]                                                       #creating a copy to avoid locality issues
-    # for i in temp_child: print(f"{i}")
-    # print("\n")
     if val == 1:                                                                #modify a row
         row_num = random.randint(0,n-1)
-        # print(f"i will modify row {row_num}")
         mutation = [random.randint(0,v-1) for i in range(0,k)]                  #generate a random v-1 value k amount of times
         temp_child[row_num] = mutation
         mutated_child = temp_child
     if val == 2:
         column_num = random.randint(0,k-1)
-        # print(f"i will modify col {column_num}")
         mutator = [random.randint(0,v-1) for i in range(0,n)]
         for num in range(len(mutator)):
             temp_child[num][column_num] = mutator[num]                        #modifies the value at {column_num} in each part of the 2d list 
@@ -100,15 +97,8 @@ def mutations(val, child):
         rand_val = random.randint(0,v-1)
         column_num = random.randint(0,k-1)      #picks random column in number of columns generated
         row_num = random.randint(0,n-1)         #picks random int in number of rows generated
-        # print(f"i will modify {row_num},{column_num}")
         temp_child[row_num][column_num] = rand_val
         mutated_child = temp_child
-    # print("----------------------\n")
-    # for i in mutated_child: print(f"{i}") 
-    # print("\n")
-    # print('-----------------------')
-    # print(fit)
-    # print('-----------------------')
     return mutated_child
 
 def crossover(parent1, parent2, val):               #we need crossover to take in two lists and a val (0,1) to determine if 1 or 2 point crossover
@@ -169,30 +159,16 @@ def basic_genetic_algo(n,k,v,pop_size,gen_count = 0):
 
 locating_array, count = basic_genetic_algo(n,k,v,pop_size)
 
-
-    # array, gen_count = basic_genetic_algo(n+1,k,v,pop_size,temp_count)
-    # return array, gen_count
-
-
-# obj_list = generator(n,k,v, 5)
-# print(obj_list[0].array,obj_list[0].fitness)
-# print(obj_list[1].array,obj_list[1].fitness)
-# print('-------------------------------')
-# child = crossover(obj_list[0],obj_list[1],1)
-# print(child.array,child.fitness)
-# print('========================')
-# mutated_child = mutations(1,child)
-# print(mutated_child.array, mutated_child.fitness)
-
-
-
-
-for i in range(5):
+def process_driver(p_id): 
     start_time = time.time()
     out, gen_count = basic_genetic_algo(n,k,v,pop_size)
-    to_file((i+1),out.array,gen_count)
-    print(f"%s Runtime: [{(i+1)}]_output_{k}_{n}_{gen_count}.txt Generated" % (time.time() - start_time))
+    to_file((p_id+1),out.array,gen_count)
+    print(f"%s Runtime: [{(p_id+1)}]_output_{k}_{n}_{gen_count}.txt Generated" % (time.time() - start_time))
 
+
+if __name__ == "__main__":
+    with multiprocessing.Pool(5) as p:
+        p.map(process_driver, [0,1,2,3,4])
 
 # RETIRED CODE ===========================================================================================================================================================================#
 # !!!!!!!!!!!!!!!!!!!!!!!!
