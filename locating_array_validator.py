@@ -5,21 +5,32 @@ import time
 import os
 import operator 
 import multiprocessing
-from math import factorial
-from itertools import combinations
 
-start_time = time.time()
+from typing import Union
+
+
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
-k = 4  #num of columns
-n = 8 #starting num of rows
+k = 90  #num of columns
+n = 60 #starting num of rows
 pop_size = 200 # population size
 
 #Random Array Generation
 
 #directory handeling
 
+def comb(n: int, k: int) -> Union[int, float]:            #sourced from chat gpt
+    if n < 0 or k < 0:                                    #recreated an efficient combination module from 3.7
+        raise ValueError("n and k must be non-negative")
+    if not 0 <= k <= n:
+        return 0
+    if k > n - k:  # use symmetry of combinatorial coefficient
+        k = n - k
+    c = 1
+    for i in range(k):
+        c = c * (n - i) // (i + 1)
+    return c
 
 class individual_array:
     def __init__(self, array, fitness):
@@ -48,9 +59,6 @@ def set_iteration(input_array, dset):                                       # ((
                 subset.add(index)
                 break
     return subset
-
-def comb(n: int, k: int) -> int:
-    return int(factorial(n) / factorial(k) / factorial(n - k))
 
 def locating_fitness(input_array):
     count = 0
