@@ -3,15 +3,17 @@ import math
 import random
 import time
 import os
-import operator
+import operator 
 import multiprocessing
+from math import factorial
+from itertools import combinations
 
 start_time = time.time()
 t = 2  #num of columns in interaction
 v = 2  #num of values    
 d = 1  #the size of the set of interactions
 k = 4  #num of columns
-n = 6 #starting num of rows
+n = 8 #starting num of rows
 pop_size = 200 # population size
 
 #Random Array Generation
@@ -47,6 +49,9 @@ def set_iteration(input_array, dset):                                       # ((
                 break
     return subset
 
+def comb(n: int, k: int) -> int:
+    return int(factorial(n) / factorial(k) / factorial(n - k))
+
 def locating_fitness(input_array):
     count = 0
     for i1, i2 in itertools.combinations(dset,2):                       #locating array compares two dsets
@@ -57,8 +62,8 @@ def locating_fitness(input_array):
                 count += 1
 
     #--- Optimality ----#
-    cov_count = (math.comb(k,t) * (v**t))
-    opt = math.comb(cov_count, 2)
+    cov_count = (comb(k,t) * (v**t))
+    opt = comb(cov_count, 2)
     return (count/opt)
 
 def generator(num_rows, num_columns, num_values, num_arrays): #generates a random list of arrays with specified rows, columns, num values
